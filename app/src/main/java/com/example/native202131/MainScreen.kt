@@ -16,7 +16,7 @@ fun MainScreen() {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = "Hello ${javaClass.simpleName}!")
         Button(onClick = {
-            logger.debug("onClick !")
+            logger.info("onClick !")
         }) {
             Text(text = "LOG")
         }

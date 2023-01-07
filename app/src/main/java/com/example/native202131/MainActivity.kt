@@ -11,7 +11,7 @@ import com.example.native202131.ui.theme.Native202131Theme
 import org.slf4j.LoggerFactory
 
 class MainActivity : ComponentActivity() {
-    private val logger by lazy { LoggerFactory.getLogger(javaClass.simpleName) }
+    private val logger by lazy { LoggerFactory.getLogger(javaClass) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

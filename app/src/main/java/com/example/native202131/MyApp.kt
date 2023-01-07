@@ -14,8 +14,8 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        logger = LoggerFactory.getLogger(packageName)
-        logger.debug("MyApp onCreate")
+        logger = LoggerFactory.getLogger(javaClass)
+        logger.info("MyApp onCreate")
     }
 }
 

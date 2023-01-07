@@ -1,5 +1,10 @@
-<configuration>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://tony19.github.io/logback-android/xml"
+    xsi:schemaLocation="https://tony19.github.io/logback-android/xml https://cdn.jsdelivr.net/gh/tony19/logback-android/logback.xsd">
+
     <property name="TAG" value="Native202131" />
+    <property name="LOG_DIR" value="/data/data/com.example.native202131/files/log" />
+
     <appender name="logcat" class="ch.qos.logback.classic.android.LogcatAppender">
         <tagEncoder>
             <pattern>${TAG}</pattern>
@@ -8,8 +13,6 @@
             <pattern>[%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
-
-    <property name="LOG_DIR" value="/data/data/com.example.native202131/files/log" />
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <lazy>true</lazy>
@@ -23,8 +26,15 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <logger name="com.example.native202131.MainActivity" additivity="false" level="TRACE">
         <appender-ref ref="logcat" />
+    </logger>
+
+    <logger name="com.example.native202131" additivity="false" level="DEBUG">
+        <appender-ref ref="logcat" />
+    </logger>
+
+    <root level="ERROR">
         <appender-ref ref="file" />
     </root>
 </configuration>

@@ -64,6 +64,10 @@ dependencies {
     // View Model
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
 
+    // Navigation
+    def nav_version = "2.5.3"
+    implementation "androidx.navigation:navigation-compose:$nav_version"
+
     // Log
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'com.github.tony19:logback-android:2.0.1'

@@ -29,8 +29,11 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             runCatching {
                 val user = Fuel.get("https://api.github.com/users/google").awaitString()
+                logger.trace("Fuel users DONE.")
                 val userModel = json.decodeFromString<UserModel>(user)
+                logger.trace("Json decode users DONE.")
                 val repo = Fuel.get(userModel.reposUrl).awaitString()
+                logger.trace("Fuel repos DONE.")
                 json.decodeFromString<List<RepoModel>>(repo)
             }.onSuccess {
                 _message.value = it.size.toString()

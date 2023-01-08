@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.devtools.ksp'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
 }
@@ -77,6 +78,13 @@ dependencies {
     implementation "com.github.kittinunf.fuel:fuel:2.3.1"
     implementation "com.github.kittinunf.fuel:fuel-coroutines:2.3.1"
 
-    // Serialization
+    // Serialization JSON
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
+
+    // Room
+    def room_version = "2.4.3"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    // To use Kotlin Symbol Processing (KSP)
+    ksp "androidx.room:room-compiler:$room_version"
 }

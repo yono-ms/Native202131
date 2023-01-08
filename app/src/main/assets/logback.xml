@@ -26,11 +26,11 @@
         </encoder>
     </appender>
 
-    <logger name="com.example.native202131.MainActivity" additivity="false" level="TRACE">
+    <logger name="com.example.native202131.MainViewModel" additivity="false" level="TRACE">
         <appender-ref ref="logcat" />
     </logger>
 
-    <logger name="com.example.native202131" additivity="false" level="DEBUG">
+    <logger name="com.example.native202131" level="DEBUG">
         <appender-ref ref="logcat" />
     </logger>
 

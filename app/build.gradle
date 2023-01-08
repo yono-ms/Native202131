@@ -61,6 +61,9 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
+    // View Model
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+
     // Log
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'com.github.tony19:logback-android:2.0.1'

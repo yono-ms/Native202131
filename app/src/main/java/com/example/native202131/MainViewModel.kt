@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class MainViewModel : ViewModel() {
     private val logger by lazy { LoggerFactory.getLogger(javaClass) }
@@ -58,20 +59,40 @@ class MainViewModel : ViewModel() {
             runCatching {
                 _busy.value = true
                 _message.value = ""
-                val user = Fuel.get("https://api.github.com/users/${_login.value}").awaitString()
-                logger.trace("Fuel users DONE.")
-                val userModel = json.decodeFromString<UserModel>(user)
-                logger.trace("Json decode users DONE.")
-                userDao.insert(userModel.toEntity())
-                logger.trace("Room insert users DONE.")
-                val repo = Fuel.get(userModel.reposUrl).awaitString()
-                logger.trace("Fuel repos DONE.")
-                val repoModels = json.decodeFromString<List<RepoModel>>(repo)
-                logger.trace("Json decode repos DONE.")
-                val list = repoModels.toEntity(userModel.id)
-                repoDao.insertAll(*list.toTypedArray())
+                val currentUser = _users.value.firstOrNull { it.login == _login.value }
+                logger.debug("currentUser $currentUser")
+                if (isUserExpired(currentUser)) {
+                    logger.trace("cache expired.")
+
+                    val url = "https://api.github.com/users/${_login.value}"
+                    val userJson = Fuel.get(url).awaitString()
+                    logger.trace("Fuel users DONE.")
+
+                    val userModel = json.decodeFromString<UserModel>(userJson)
+                    logger.trace("Json decode users DONE.")
+
+                    val isUserChanged = userModel.updatedAt != currentUser?.updatedAt
+                    logger.debug("isUserChanged $isUserChanged")
+
+                    insertUser(userModel)
+
+                    if (isUserChanged) {
+                        logger.trace("user data changed.")
+
+
+                        val repoJson = Fuel.get(userModel.reposUrl).awaitString()
+                        logger.trace("Fuel repos DONE.")
+
+                        val repoModels = json.decodeFromString<List<RepoModel>>(repoJson)
+                        logger.trace("Json decode repos DONE.")
+
+                        insertRepos(repoModels, userModel.id)
+                        logger.trace("Room insert repos DONE.")
+                    }
+                    _repos.value = repoDao.getAllRepo(userModel.id)
+                }
             }.onSuccess {
-                logger.trace("Room insert repos DONE.")
+                logger.trace("Room getAllRepo DONE.")
             }.onFailure {
                 logger.error("onClick", it)
                 _message.value = it.localizedMessage ?: ""
@@ -81,7 +102,46 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private fun isUserExpired(user: UserEntity?): Boolean {
+        logger.info("isUserExpired START $user")
+        val cachedTime = user?.cachedAt ?: 0
+        val expiredTime = cachedTime + CACHE_TIME_LIMIT
+        val result = expiredTime < Date().time
+        logger.debug("isUserExpired $result")
+        return result
+    }
+
+    private suspend fun insertUser(userModel: UserModel) {
+        logger.info("insertUser START")
+        val list = _users.value.filter { it.login == userModel.login }
+        val id = list.firstOrNull()?.id ?: 0
+        logger.debug("id $id")
+        if (list.any()) {
+            logger.info("login ${userModel.login} exist.")
+            list.filter { it.id != id }.forEach {
+                logger.warn("delete user ${it.login}")
+                userDao.delete(it)
+            }
+        }
+        val userEntity = userModel.toEntity(id)
+        userDao.insert(userEntity)
+        logger.trace("Room insert users DONE.")
+        logger.info("insertUser END")
+    }
+
+    private suspend fun insertRepos(repoModels: List<RepoModel>, ownerId: Int) {
+        logger.info("insertRepos START")
+        val aaa = _repos.value.filter { it.ownerId == ownerId }
+        logger.debug("delete size ${aaa.size}")
+        repoDao.deleteAll(*aaa.toTypedArray())
+        logger.trace("deleteAll DONE.")
+        val list = repoModels.toEntity(ownerId)
+        repoDao.insertAll(*list.toTypedArray())
+        logger.info("insertRepos END")
+    }
+
     init {
+        logger.info("init START")
         viewModelScope.launch {
             runCatching {
                 userDao.loadAllUser().collect {
@@ -92,15 +152,20 @@ class MainViewModel : ViewModel() {
                 logger.error("userDao collect", it)
             }
         }
-        viewModelScope.launch {
-            runCatching {
-                repoDao.loadAllRepo().collect {
-                    logger.info("repoDao collect ${it.size}")
-                    _repos.value = it
-                }
-            }.onFailure {
-                logger.error("repoDao collect", it)
-            }
-        }
+//        viewModelScope.launch {
+//            runCatching {
+//                repoDao.loadAllRepo().collect {
+//                    logger.info("repoDao collect ${it.size}")
+//                    _repos.value = it
+//                }
+//            }.onFailure {
+//                logger.error("repoDao collect", it)
+//            }
+//        }
+        logger.info("init END")
+    }
+
+    companion object {
+        const val CACHE_TIME_LIMIT = 1_000
     }
 }

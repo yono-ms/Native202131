@@ -4,9 +4,9 @@ import com.example.native202131.database.RepoEntity
 import com.example.native202131.database.UserEntity
 import java.util.*
 
-fun UserModel.toEntity(): UserEntity {
+fun UserModel.toEntity(primaryKey: Int = 0): UserEntity {
     return UserEntity(
-        id = 0,
+        id = primaryKey,
         cachedAt = Date().time,
         login = login,
         loginId = id,

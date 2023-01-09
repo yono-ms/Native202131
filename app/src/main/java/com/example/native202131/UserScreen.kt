@@ -15,31 +15,48 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.native202131.database.UserEntity
 import com.example.native202131.ui.theme.Native202131Theme
+import java.util.*
 
 @Composable
-fun UserScreen(viewModel: MainViewModel = viewModel(), onNavigate: () -> Unit) {
+fun UserScreen(
+    viewModel: MainViewModel = viewModel(),
+    onNavigateInput: () -> Unit,
+    onNavigateRepo: () -> Unit
+) {
     val login = viewModel.login.collectAsState()
     val users = viewModel.users.collectAsState()
-    UserContent(login.value, users.value, {
+    UserContent(login = login.value, users = users.value, onSelect = {
+        viewModel.updateLogin(it)
+    }, onInput = {
+        onNavigateInput()
         viewModel.updateDraftLogin(login.value)
-        onNavigate()
-    }) { viewModel.onGet() }
+    }) {
+        onNavigateRepo()
+        viewModel.onGet()
+    }
 }
 
 @Composable
-fun UserContent(login: String, users: List<UserEntity>, onInput: () -> Unit, onGet: () -> Unit) {
+fun UserContent(
+    login: String,
+    users: List<UserEntity>,
+    onSelect: (text: String) -> Unit,
+    onInput: () -> Unit,
+    onGet: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                logger.info("onClick Input !")
-                onInput()
-            }) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    logger.info("onClick Input !")
+                    onInput()
+                }) {
             Text(text = login)
         }
         Button(onClick = {
@@ -53,11 +70,17 @@ fun UserContent(login: String, users: List<UserEntity>, onInput: () -> Unit, onG
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(users) {
-                Column(Modifier.fillMaxWidth()) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onSelect(it.login)
+                        }) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        Text(text = Date(it.cachedAt).toBestString(), fontSize = 10.sp)
                         Text(text = it.loginId.toString(), fontSize = 10.sp)
                         Text(text = it.login, fontSize = 10.sp)
                     }
@@ -73,10 +96,10 @@ fun UserContent(login: String, users: List<UserEntity>, onInput: () -> Unit, onG
 fun UserPreview() {
     Native202131Theme {
         val users = listOf(
-            UserEntity(1, 0, "user login 1", 11, "user name 1", "url", "2023"),
-            UserEntity(2, 0, "user login 2", 12, "user name 2", "url", "2023"),
-            UserEntity(3, 0, "user login 3", 13, "user name 3", "url", "2023"),
+            UserEntity(1, 1111111, "user login 1", 11, "user name 1", "url", "2023"),
+            UserEntity(2, 2222222, "user login 2", 12, "user name 2", "url", "2023"),
+            UserEntity(3, 3333333, "user login 3", 13, "user name 3", "url", "2023"),
         )
-        UserContent("login", users, {}, {})
+        UserContent("login", users, {}, {}, {})
     }
 }

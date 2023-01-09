@@ -30,10 +30,15 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 HomeScreen { navController.navigate(NavRoute.USER.name) }
             }
             composable(NavRoute.USER.name) {
-                UserScreen(viewModel) { navController.navigate(NavRoute.INPUT.name) }
+                UserScreen(viewModel, { navController.navigate(NavRoute.INPUT.name) }) {
+                    navController.navigate(NavRoute.REPO.name)
+                }
             }
             composable(NavRoute.INPUT.name) {
                 InputScreen(viewModel) { navController.popBackStack() }
+            }
+            composable(NavRoute.REPO.name) {
+                RepoScreen(viewModel)
             }
         }
     }

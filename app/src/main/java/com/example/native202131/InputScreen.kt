@@ -18,8 +18,8 @@ import com.example.native202131.ui.theme.Native202131Theme
 fun InputScreen(viewModel: MainViewModel = viewModel(), onPopBackStack: () -> Unit) {
     val draftLogon = viewModel.draftLogin.collectAsState()
     InputContent(draftLogon.value, { viewModel.updateDraftLogin(it) }) {
-        viewModel.updateLogin(draftLogon.value)
         onPopBackStack()
+        viewModel.updateLogin(draftLogon.value)
     }
 }
 

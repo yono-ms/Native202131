@@ -27,17 +27,38 @@ class MainViewModel : ViewModel() {
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
 
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean> = _busy
+
     private val _users = MutableStateFlow(listOf<UserEntity>())
     val users: StateFlow<List<UserEntity>> = _users
 
     private val _repos = MutableStateFlow(listOf<RepoEntity>())
     val repos: StateFlow<List<RepoEntity>> = _repos
 
-    fun setMessage(text: String) {
-        logger.info("setMessage $text")
+    private val _login = MutableStateFlow("apple")
+    val login: StateFlow<String> = _login
+
+    private val _draftLogin = MutableStateFlow("")
+    val draftLogin: StateFlow<String> = _draftLogin
+
+    fun updateLogin(text: String) {
+        logger.info("updateLogin")
+        _login.value = text
+    }
+
+    fun updateDraftLogin(text: String) {
+        logger.info("updateDraftLogin")
+        _draftLogin.value = text
+    }
+
+    fun onGet() {
+        logger.info("onGet")
         viewModelScope.launch {
             runCatching {
-                val user = Fuel.get("https://api.github.com/users/google").awaitString()
+                _busy.value = true
+                _message.value = ""
+                val user = Fuel.get("https://api.github.com/users/${_login.value}").awaitString()
                 logger.trace("Fuel users DONE.")
                 val userModel = json.decodeFromString<UserModel>(user)
                 logger.trace("Json decode users DONE.")
@@ -45,17 +66,17 @@ class MainViewModel : ViewModel() {
                 logger.trace("Room insert users DONE.")
                 val repo = Fuel.get(userModel.reposUrl).awaitString()
                 logger.trace("Fuel repos DONE.")
-                val repoModel = json.decodeFromString<List<RepoModel>>(repo)
+                val repoModels = json.decodeFromString<List<RepoModel>>(repo)
                 logger.trace("Json decode repos DONE.")
-                repoModel.forEach {
-                    repoDao.insert(it.toEntity(userModel.id))
-                }
+                val list = repoModels.toEntity(userModel.id)
+                repoDao.insertAll(*list.toTypedArray())
             }.onSuccess {
                 logger.trace("Room insert repos DONE.")
-                _message.value = "Success."
             }.onFailure {
                 logger.error("onClick", it)
                 _message.value = it.localizedMessage ?: ""
+            }.also {
+                _busy.value = false
             }
         }
     }

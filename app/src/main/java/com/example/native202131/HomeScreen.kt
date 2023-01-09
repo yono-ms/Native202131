@@ -7,33 +7,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.native202131.ui.theme.Native202131Theme
 
 @Composable
-fun HomeScreen(viewModel: MainViewModel = viewModel()) {
-    val message = viewModel.message.collectAsState()
-    HomeContent(message = message.value, onClick = { viewModel.setMessage(it) })
+fun HomeScreen(onNavigate: () -> Unit) {
+    HomeContent(onClick = onNavigate)
 }
 
 @Composable
-fun HomeContent(message: String, onClick: (text: String) -> Unit) {
+fun HomeContent(onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = message)
         Button(onClick = {
             logger.info("onClick !")
-            onClick("Click")
+            onClick()
         }) {
-            Text(text = "LOG")
+            Text(text = "USER")
         }
     }
 }
@@ -42,6 +38,6 @@ fun HomeContent(message: String, onClick: (text: String) -> Unit) {
 @Composable
 fun HomePreview() {
     Native202131Theme {
-        HomeContent("Message") {}
+        HomeContent {}
     }
 }

@@ -25,3 +25,9 @@ fun RepoModel.toEntity(ownerId: Int): RepoEntity {
         updatedAt = updatedAt
     )
 }
+
+fun List<RepoModel>.toEntity(ownerId: Int): List<RepoEntity> {
+    val list = mutableListOf<RepoEntity>()
+    forEach { list.add(it.toEntity(ownerId)) }
+    return list
+}

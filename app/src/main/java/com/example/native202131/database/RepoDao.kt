@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RepoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(repoEntity: RepoEntity)
+    suspend fun insertAll(vararg repoEntities: RepoEntity)
 
     @Query("SELECT * FROM repos ORDER BY updated_at DESC")
     fun loadAllRepo(): Flow<List<RepoEntity>>

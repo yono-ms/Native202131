@@ -7,37 +7,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.native202131.database.UserEntity
 import com.example.native202131.ui.theme.Native202131Theme
 import java.util.*
 
 @Composable
 fun UserScreen(
-    viewModel: MainViewModel = viewModel(),
-    onNavigateInput: () -> Unit,
-    onNavigateRepo: () -> Unit
-) {
-    val login = viewModel.login.collectAsState()
-    val users = viewModel.users.collectAsState()
-    UserContent(login = login.value, users = users.value, onSelect = {
-        viewModel.updateLogin(it)
-    }, onInput = {
-        onNavigateInput()
-        viewModel.updateDraftLogin(login.value)
-    }) {
-        onNavigateRepo()
-        viewModel.onGet()
-    }
-}
-
-@Composable
-fun UserContent(
     login: String,
     users: List<UserEntity>,
     onSelect: (text: String) -> Unit,
@@ -100,6 +79,6 @@ fun UserPreview() {
             UserEntity(2, 2222222, "user login 2", 12, "user name 2", "url", "2023"),
             UserEntity(3, 3333333, "user login 3", 13, "user name 3", "url", "2023"),
         )
-        UserContent("login", users, {}, {}, {})
+        UserScreen("login", users, {}, {}, {})
     }
 }

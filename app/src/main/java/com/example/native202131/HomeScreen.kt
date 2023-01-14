@@ -13,12 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.example.native202131.ui.theme.Native202131Theme
 
 @Composable
-fun HomeScreen(onNavigate: () -> Unit) {
-    HomeContent(onClick = onNavigate)
-}
-
-@Composable
-fun HomeContent(onClick: () -> Unit) {
+fun HomeScreen(onClick: (navRoute: NavRoute) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -27,7 +22,7 @@ fun HomeContent(onClick: () -> Unit) {
     ) {
         Button(onClick = {
             logger.info("onClick !")
-            onClick()
+            onClick(NavRoute.USER)
         }) {
             Text(text = "USER")
         }
@@ -38,6 +33,6 @@ fun HomeContent(onClick: () -> Unit) {
 @Composable
 fun HomePreview() {
     Native202131Theme {
-        HomeContent {}
+        HomeScreen {}
     }
 }

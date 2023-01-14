@@ -5,28 +5,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.native202131.ui.theme.Native202131Theme
-
-@Composable
-fun InputScreen(viewModel: MainViewModel = viewModel(), onPopBackStack: () -> Unit) {
-    val draftLogon = viewModel.draftLogin.collectAsState()
-    InputContent(draftLogon.value, { viewModel.updateDraftLogin(it) }) {
-        onPopBackStack()
-        viewModel.updateLogin(draftLogon.value)
-    }
-}
 
 const val LOGIN_MAX_LENGTH = 32
 
 @Composable
-fun InputContent(draftLogon: String, onChange: (text: String) -> Unit, onDone: () -> Unit) {
+fun InputScreen(draftLogon: String, onChange: (text: String) -> Unit, onDone: () -> Unit) {
     TextField(
         value = draftLogon,
         onValueChange = {
@@ -56,6 +45,6 @@ fun InputContent(draftLogon: String, onChange: (text: String) -> Unit, onDone: (
 @Composable
 fun InputPreview() {
     Native202131Theme {
-        InputContent("test", {}) {}
+        InputScreen("test", {}) {}
     }
 }

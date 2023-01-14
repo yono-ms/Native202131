@@ -2,7 +2,6 @@ package com.example.native202131
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.native202131.database.RepoEntity
 import com.example.native202131.database.UserEntity
 import com.example.native202131.network.RepoModel
 import com.example.native202131.network.UserModel
@@ -32,25 +31,14 @@ class MainViewModel : ViewModel() {
     val busy: StateFlow<Boolean> = _busy
 
     private val _users = MutableStateFlow(listOf<UserEntity>())
-    val users: StateFlow<List<UserEntity>> = _users
-
-    private val _repos = MutableStateFlow(listOf<RepoEntity>())
-    val repos: StateFlow<List<RepoEntity>> = _repos
+//    val users: StateFlow<List<UserEntity>> = _users
 
     private val _login = MutableStateFlow("apple")
     val login: StateFlow<String> = _login
 
-    private val _draftLogin = MutableStateFlow("")
-    val draftLogin: StateFlow<String> = _draftLogin
-
     fun updateLogin(text: String) {
         logger.info("updateLogin")
         _login.value = text
-    }
-
-    fun updateDraftLogin(text: String) {
-        logger.info("updateDraftLogin")
-        _draftLogin.value = text
     }
 
     fun onGet() {
@@ -89,7 +77,6 @@ class MainViewModel : ViewModel() {
                         insertRepos(repoModels, userModel.id)
                         logger.trace("Room insert repos DONE.")
                     }
-                    _repos.value = repoDao.getAllRepo(userModel.id)
                 }
             }.onSuccess {
                 logger.trace("Room getAllRepo DONE.")
@@ -131,7 +118,7 @@ class MainViewModel : ViewModel() {
 
     private suspend fun insertRepos(repoModels: List<RepoModel>, ownerId: Int) {
         logger.info("insertRepos START")
-        val aaa = _repos.value.filter { it.ownerId == ownerId }
+        val aaa = repoDao.getAllRepo(ownerId)
         logger.debug("delete size ${aaa.size}")
         repoDao.deleteAll(*aaa.toTypedArray())
         logger.trace("deleteAll DONE.")
@@ -152,16 +139,6 @@ class MainViewModel : ViewModel() {
                 logger.error("userDao collect", it)
             }
         }
-//        viewModelScope.launch {
-//            runCatching {
-//                repoDao.loadAllRepo().collect {
-//                    logger.info("repoDao collect ${it.size}")
-//                    _repos.value = it
-//                }
-//            }.onFailure {
-//                logger.error("repoDao collect", it)
-//            }
-//        }
         logger.info("init END")
     }
 

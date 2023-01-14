@@ -9,7 +9,7 @@ fun String.fromIsoToDate(): Date {
     val isoFormat = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         "yyyy-MM-dd'T'HH:mm:ssX"
     } else {
-        "yyyy-MM-dd'T'HH:mm:ssX"
+        "yyyy-MM-dd'T'HH:mm:ssZ"
     }
     kotlin.runCatching {
         SimpleDateFormat(isoFormat, Locale.US).parse(this)
@@ -24,9 +24,8 @@ fun String.fromIsoToDate(): Date {
 fun Date.toBestString(): String {
     kotlin.runCatching {
         val locale = Locale.getDefault()
-        val cal = Calendar.getInstance(locale).apply { time = this@toBestString }
         val pattern = DateFormat.getBestDateTimePattern(locale, "yyyyMMMdEEEHHmmss")
-        SimpleDateFormat(pattern, locale).format(cal.time)
+        SimpleDateFormat(pattern, locale).format(this@toBestString)
     }.onSuccess {
         return it
     }.onFailure {

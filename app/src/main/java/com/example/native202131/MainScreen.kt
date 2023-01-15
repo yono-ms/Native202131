@@ -20,9 +20,9 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val navController = rememberNavController()
     val message = viewModel.message.collectAsState()
     val busy = viewModel.busy.collectAsState()
-    val login = viewModel.login.collectAsState()
+    var login by rememberSaveable { mutableStateOf("") }
     val users = userDao.loadAllUser().collectAsState(initial = emptyList())
-    var draftLogon by rememberSaveable { mutableStateOf("") }
+    var draftLogin by rememberSaveable { mutableStateOf("") }
     val repos = repoDao.loadAllRepo().collectAsState(initial = emptyList())
     Column(modifier = Modifier.fillMaxSize()) {
         Text(text = message.value)
@@ -31,28 +31,32 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         }
         NavHost(navController = navController, startDestination = NavRoute.HOME.name) {
             composable(NavRoute.HOME.name) {
+                logger.trace("compose ${NavRoute.HOME.name}")
                 HomeScreen { navController.navigate(it.name) }
             }
             composable(NavRoute.USER.name) {
-                UserScreen(login = login.value, users = users.value, onSelect = {
-                    viewModel.updateLogin(it)
+                logger.trace("compose ${NavRoute.USER.name}")
+                UserScreen(login = login, users = users.value, onSelect = {
+                    login = it
                 }, onInput = {
                     navController.navigate(NavRoute.INPUT.name)
-                    draftLogon = login.value
+                    draftLogin = login
                 }, onGet = {
                     navController.navigate(NavRoute.REPO.name)
-                    viewModel.onGet()
+                    viewModel.onGet(login)
                 })
             }
             composable(NavRoute.INPUT.name) {
-                InputScreen(draftLogon = draftLogon, onChange = {
-                    draftLogon = it
+                logger.trace("compose ${NavRoute.INPUT.name}")
+                InputScreen(draftLogin = draftLogin, onChange = {
+                    draftLogin = it
                 }, onDone = {
                     navController.popBackStack()
-                    viewModel.updateLogin(draftLogon)
+                    login = draftLogin
                 })
             }
             composable(NavRoute.REPO.name) {
+                logger.trace("compose ${NavRoute.REPO.name}")
                 RepoScreen(repos.value)
             }
         }

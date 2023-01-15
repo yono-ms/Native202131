@@ -41,7 +41,7 @@ fun UserScreen(
         Button(onClick = {
             logger.info("onClick GET !")
             onGet()
-        }) {
+        }, enabled = login.isNotEmpty()) {
             Text(text = "GET")
         }
         LazyColumn(
@@ -53,6 +53,7 @@ fun UserScreen(
                     Modifier
                         .fillMaxWidth()
                         .clickable {
+                            logger.info("onSelect ! ${it.login}")
                             onSelect(it.login)
                         }) {
                     Row(

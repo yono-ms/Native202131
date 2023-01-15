@@ -30,29 +30,18 @@ class MainViewModel : ViewModel() {
     private val _busy = MutableStateFlow(false)
     val busy: StateFlow<Boolean> = _busy
 
-    private val _users = MutableStateFlow(listOf<UserEntity>())
-//    val users: StateFlow<List<UserEntity>> = _users
-
-    private val _login = MutableStateFlow("apple")
-    val login: StateFlow<String> = _login
-
-    fun updateLogin(text: String) {
-        logger.info("updateLogin")
-        _login.value = text
-    }
-
-    fun onGet() {
+    fun onGet(login: String) {
         logger.info("onGet")
         viewModelScope.launch {
             runCatching {
                 _busy.value = true
                 _message.value = ""
-                val currentUser = _users.value.firstOrNull { it.login == _login.value }
+                val currentUser = userDao.getAllUser().firstOrNull { it.login == login }
                 logger.debug("currentUser $currentUser")
                 if (isUserExpired(currentUser)) {
                     logger.trace("cache expired.")
 
-                    val url = "https://api.github.com/users/${_login.value}"
+                    val url = "https://api.github.com/users/${login}"
                     val userJson = Fuel.get(url).awaitString()
                     logger.trace("Fuel users DONE.")
 
@@ -100,7 +89,7 @@ class MainViewModel : ViewModel() {
 
     private suspend fun insertUser(userModel: UserModel) {
         logger.info("insertUser START")
-        val list = _users.value.filter { it.login == userModel.login }
+        val list = userDao.getAllUser().filter { it.login == userModel.login }
         val id = list.firstOrNull()?.id ?: 0
         logger.debug("id $id")
         if (list.any()) {
@@ -125,21 +114,6 @@ class MainViewModel : ViewModel() {
         val list = repoModels.toEntity(ownerId)
         repoDao.insertAll(*list.toTypedArray())
         logger.info("insertRepos END")
-    }
-
-    init {
-        logger.info("init START")
-        viewModelScope.launch {
-            runCatching {
-                userDao.loadAllUser().collect {
-                    logger.info("userDao collect ${it.size}")
-                    _users.value = it
-                }
-            }.onFailure {
-                logger.error("userDao collect", it)
-            }
-        }
-        logger.info("init END")
     }
 
     companion object {

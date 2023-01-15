@@ -15,10 +15,11 @@ import com.example.native202131.ui.theme.Native202131Theme
 const val LOGIN_MAX_LENGTH = 32
 
 @Composable
-fun InputScreen(draftLogon: String, onChange: (text: String) -> Unit, onDone: () -> Unit) {
+fun InputScreen(draftLogin: String, onChange: (text: String) -> Unit, onDone: () -> Unit) {
     TextField(
-        value = draftLogon,
+        value = draftLogin,
         onValueChange = {
+            logger.info("onValueChange ! $it")
             when {
                 it.contains("¥n") -> logger.warn("contains RETURN")
                 it.length > LOGIN_MAX_LENGTH -> logger.warn("length ${it.length} ($LOGIN_MAX_LENGTH)")

@@ -15,6 +15,12 @@ interface UserDao {
     @Delete
     suspend fun delete(userEntity: UserEntity)
 
+    @Query("SELECT * FROM users WHERE login like :login")
+    suspend fun getUser(login: String): UserEntity
+
+    @Query("SELECT * FROM users ORDER BY cached_at DESC")
+    suspend fun getAllUser(): List<UserEntity>
+
     @Query("SELECT * FROM users ORDER BY cached_at DESC")
     fun loadAllUser(): Flow<List<UserEntity>>
 }

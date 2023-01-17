@@ -2,7 +2,6 @@ package com.example.native202131
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.native202131.database.UserEntity
 import com.example.native202131.network.RepoModel
 import com.example.native202131.network.UserModel
 import com.example.native202131.network.toEntity
@@ -36,35 +35,31 @@ class MainViewModel : ViewModel() {
             runCatching {
                 _busy.value = true
                 _message.value = ""
-                val currentUser = userDao.getAllUser().firstOrNull { it.login == login }
-                logger.debug("currentUser $currentUser")
-                if (isUserExpired(currentUser)) {
-                    logger.trace("cache expired.")
-
+                val isExist = userDao.existsCache(login, Date().time - CACHE_TIME_LIMIT)
+                if (isExist) {
+                    logger.info("cache exist.")
+                } else {
+                    logger.info("cache expired.")
+                    logger.trace("Fuel users START.")
                     val url = "https://api.github.com/users/${login}"
                     val userJson = Fuel.get(url).awaitString()
-                    logger.trace("Fuel users DONE.")
-
+                    logger.trace("Json decode users START.")
                     val userModel = json.decodeFromString<UserModel>(userJson)
-                    logger.trace("Json decode users DONE.")
-
-                    val isUserChanged = userModel.updatedAt != currentUser?.updatedAt
+                    logger.trace("update_at check START.")
+                    val isUserChanged = userDao.changed(login, userModel.updatedAt)
                     logger.debug("isUserChanged $isUserChanged")
-
                     insertUser(userModel)
-
                     if (isUserChanged) {
-                        logger.trace("user data changed.")
-
-
+                        logger.info("user data changed.")
+                        logger.trace("Fuel repos START.")
                         val repoJson = Fuel.get(userModel.reposUrl).awaitString()
-                        logger.trace("Fuel repos DONE.")
-
+                        logger.trace("Json decode repos START.")
                         val repoModels = json.decodeFromString<List<RepoModel>>(repoJson)
-                        logger.trace("Json decode repos DONE.")
-
+                        logger.trace("Room insert repos START.")
                         insertRepos(repoModels, userModel.id)
                         logger.trace("Room insert repos DONE.")
+                    } else {
+                        logger.info("user data not changed.")
                     }
                 }
             }.onSuccess {
@@ -78,27 +73,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun isUserExpired(user: UserEntity?): Boolean {
-        logger.info("isUserExpired START $user")
-        val cachedTime = user?.cachedAt ?: 0
-        val expiredTime = cachedTime + CACHE_TIME_LIMIT
-        val result = expiredTime < Date().time
-        logger.debug("isUserExpired $result")
-        return result
-    }
-
     private suspend fun insertUser(userModel: UserModel) {
         logger.info("insertUser START")
-        val list = userDao.getAllUser().filter { it.login == userModel.login }
-        val id = list.firstOrNull()?.id ?: 0
+        val id = userDao.getId(userModel.login)
         logger.debug("id $id")
-        if (list.any()) {
-            logger.info("login ${userModel.login} exist.")
-            list.filter { it.id != id }.forEach {
-                logger.warn("delete user ${it.login}")
-                userDao.delete(it)
-            }
-        }
         val userEntity = userModel.toEntity(id)
         userDao.insert(userEntity)
         logger.trace("Room insert users DONE.")
@@ -117,6 +95,6 @@ class MainViewModel : ViewModel() {
     }
 
     companion object {
-        const val CACHE_TIME_LIMIT = 1_000
+        const val CACHE_TIME_LIMIT = 10_000
     }
 }

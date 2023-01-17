@@ -15,11 +15,14 @@ interface UserDao {
     @Delete
     suspend fun delete(userEntity: UserEntity)
 
-    @Query("SELECT * FROM users WHERE login like :login")
-    suspend fun getUser(login: String): UserEntity
+    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE login = :login AND cached_at > :cachedAt LIMIT 1)")
+    suspend fun existsCache(login: String, cachedAt: Long): Boolean
 
-    @Query("SELECT * FROM users ORDER BY cached_at DESC")
-    suspend fun getAllUser(): List<UserEntity>
+    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE login = :login AND updated_at != :updateAt LIMIT 1)")
+    suspend fun changed(login: String, updateAt: String): Boolean
+
+    @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE id END FROM users WHERE login = :login LIMIT 1")
+    suspend fun getId(login: String): Int
 
     @Query("SELECT * FROM users ORDER BY cached_at DESC")
     fun loadAllUser(): Flow<List<UserEntity>>

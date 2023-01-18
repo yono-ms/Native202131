@@ -18,7 +18,7 @@ interface UserDao {
     @Query("SELECT EXISTS(SELECT 1 FROM users WHERE login = :login AND cached_at > :cachedAt LIMIT 1)")
     suspend fun existsCache(login: String, cachedAt: Long): Boolean
 
-    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE login = :login AND updated_at != :updateAt LIMIT 1)")
+    @Query("SELECT NOT EXISTS(SELECT 1 FROM users WHERE login = :login AND updated_at = :updateAt LIMIT 1)")
     suspend fun changed(login: String, updateAt: String): Boolean
 
     @Query("SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE id END FROM users WHERE login = :login LIMIT 1")

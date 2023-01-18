@@ -85,9 +85,9 @@ class MainViewModel : ViewModel() {
 
     private suspend fun insertRepos(repoModels: List<RepoModel>, ownerId: Int) {
         logger.info("insertRepos START")
-        val aaa = repoDao.getAllRepo(ownerId)
-        logger.debug("delete size ${aaa.size}")
-        repoDao.deleteAll(*aaa.toTypedArray())
+        val repoEntities = repoDao.getAllRepo(ownerId)
+        logger.debug("delete size ${repoEntities.size}")
+        repoDao.deleteAll(*repoEntities.toTypedArray())
         logger.trace("deleteAll DONE.")
         val list = repoModels.toEntity(ownerId)
         repoDao.insertAll(*list.toTypedArray())

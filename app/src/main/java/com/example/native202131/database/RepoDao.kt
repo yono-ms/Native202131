@@ -14,6 +14,6 @@ interface RepoDao {
     @Query("SELECT * FROM repos WHERE owner_id = :ownerId ORDER BY updated_at DESC")
     suspend fun getAllRepo(ownerId: Int): List<RepoEntity>
 
-    @Query("SELECT * FROM repos ORDER BY updated_at DESC")
-    fun loadAllRepo(): Flow<List<RepoEntity>>
+    @Query("SELECT * FROM repos WHERE owner_id = (SELECT login_id FROM users WHERE login = :login) ORDER BY updated_at DESC")
+    fun loadSelectedRepo(login: String): Flow<List<RepoEntity>>
 }

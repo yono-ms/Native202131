@@ -23,7 +23,6 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     var login by rememberSaveable { mutableStateOf("") }
     val users = userDao.loadAllUser().collectAsState(initial = emptyList())
     var draftLogin by rememberSaveable { mutableStateOf("") }
-    val repos = repoDao.loadAllRepo().collectAsState(initial = emptyList())
     Column(modifier = Modifier.fillMaxSize()) {
         Text(text = message.value)
         if (busy.value) {
@@ -57,6 +56,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             }
             composable(NavRoute.REPO.name) {
                 logger.trace("compose ${NavRoute.REPO.name}")
+                val repos = repoDao.loadSelectedRepo(login).collectAsState(initial = emptyList())
+                logger.debug("repos size=${repos.value.size}")
                 RepoScreen(repos.value)
             }
         }

@@ -32,6 +32,10 @@ class MainViewModel : ViewModel() {
 
     fun onGet(login: String) {
         logger.info("onGet")
+        if (_busy.value) {
+            logger.info("busy.")
+            return
+        }
         viewModelScope.launch {
             runCatching {
                 _busy.value = true

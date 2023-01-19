@@ -13,6 +13,8 @@ data class UserModel(
     val name: String,
     @SerialName("repos_url")
     val reposUrl: String,
+    @SerialName("public_repos")
+    val publicRepos: Int,
     @SerialName("updated_at")
     val updatedAt: String,
 )

@@ -19,6 +19,8 @@ data class UserEntity(
     val name: String,
     @ColumnInfo(name = "repos_url")
     val reposUrl: String,
+    @ColumnInfo(name = "public_repos")
+    val publicRepos: Int,
     @ColumnInfo(name = "updated_at")
     val updatedAt: String,
 )

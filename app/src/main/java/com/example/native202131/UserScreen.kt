@@ -76,9 +76,9 @@ fun UserScreen(
 fun UserPreview() {
     Native202131Theme {
         val users = listOf(
-            UserEntity(1, 1111111, "user login 1", 11, "user name 1", "url", "2023"),
-            UserEntity(2, 2222222, "user login 2", 12, "user name 2", "url", "2023"),
-            UserEntity(3, 3333333, "user login 3", 13, "user name 3", "url", "2023"),
+            UserEntity(1, 1111111, "user login 1", 11, "user name 1", "url", 1, "2023"),
+            UserEntity(2, 2222222, "user login 2", 12, "user name 2", "url", 2, "2023"),
+            UserEntity(3, 3333333, "user login 3", 13, "user name 3", "url", 3, "2023"),
         )
         UserScreen("login", users, {}, {}, {})
     }

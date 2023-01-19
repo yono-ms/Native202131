@@ -12,6 +12,7 @@ fun UserModel.toEntity(primaryKey: Int = 0): UserEntity {
         loginId = id,
         name = name,
         reposUrl = reposUrl,
+        publicRepos = publicRepos,
         updatedAt = updatedAt
     )
 }
